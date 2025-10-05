@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Comet </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: radial-gradient(ellipse at center, #0a1628 0%, #000000 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            width: 350px;
+            background: rgba(10, 20, 40, 0.95);
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid rgba(100, 150, 255, 0.3);
+            z-index: 100;
+        }
+
+        .simulation-area {
+            flex: 1;
+            position: relative;
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #4a9eff;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mode-selector {
+            display: none;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(74, 158, 255, 0.3);
+            color: white;
+            border: 2px solid rgba(74, 158, 255, 0.5);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .mode-btn:hover {
+            background: rgba(74, 158, 255, 0.5);
+        }
+
+        .mode-btn.active {
+            background: rgba(74, 158, 255, 0.9);
+            border-color: #4a9eff;
+        }
+
+        .explanation-box {
+            background: rgba(20, 40, 80, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid rgba(100, 150, 255, 0.4);
+        }
+
+        .explanation-box h3 {
+            color: #88ccff;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .explanation-box p {
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .part-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .highlight-btn {
+            padding: 8px 15px;
+            background: rgba(100, 200, 100, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+
+        .highlight-btn:hover {
+            background: rgba(100, 200, 100, 0.9);
+            transform: scale(1.05);
+        }
+
+        .controls {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid rgba(100, 150, 255, 0.3);
+        }
+
+        .control-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(74, 158, 255, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(74, 158, 255, 1);
+            transform: scale(1.02);
+        }
+
+        .solar-system {
+            position: relative;
+            width: 800px;
+            height: 800px;
+            transform-style: preserve-3d;
+            animation: rotate3d 60s infinite linear;
+        }
+
+        @keyframes rotate3d {
+            from { transform: rotateX(-20deg) rotateY(0deg); }
+            to { transform: rotateX(-20deg) rotateY(360deg); }
+        }
+
+        .sun {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #ffd700 0%, #ff8c00 100%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 60px #ffa500, 0 0 100px #ff8c00;
+            z-index: 10;
+            transition: all 0.5s;
+        }
+
+        .sun.highlight {
+            box-shadow: 0 0 100px #ffff00, 0 0 150px #ff8c00;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .sun::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            to { transform: translate(-50%, -50%) scale(1.2); opacity: 0.2; }
+        }
+
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 700px;
+            height: 500px;
+            border: 2px dashed rgba(100, 150, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) rotateX(75deg);
+            transform-style: preserve-3d;
+        }
+
+        .comet {
+            position: absolute;
+            width: 700px;
+            height: 500px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateX(75deg);
+            animation: orbit 20s infinite linear;
+            transform-style: preserve-3d;
+        }
+
+        @keyframes orbit {
+            from { transform: translate(-50%, -50%) rotateX(75deg) rotateZ(0deg); }
+            to { transform: translate(-50%, -50%) rotateX(75deg) rotateZ(360deg); }
+        }
+
+        .nucleus {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, #8b8b8b 0%, #2a2a2a 100%);
+            border-radius: 50%;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            z-index: 5;
+            transition: all 0.5s;
+        }
+
+        .nucleus.highlight {
+            box-shadow: 0 0 40px #ffffff, 0 0 60px #ffff00;
+            transform: translateX(-50%) scale(1.8);
+        }
+
+        .coma {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(136, 204, 255, 0.6) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -17px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: glow 2s infinite alternate;
+            z-index: 4;
+            transition: all 0.5s;
+        }
+
+        .coma.highlight {
+            width: 100px;
+            height: 100px;
+            top: -37px;
+            background: radial-gradient(circle, rgba(136, 204, 255, 0.9) 0%, transparent 70%);
+            box-shadow: 0 0 60px #88ccff;
+        }
+
+        @keyframes glow {
+            from { transform: translateX(-50%) scale(1); opacity: 0.6; }
+            to { transform: translateX(-50%) scale(1.2); opacity: 0.4; }
+        }
+
+        .dust-tail {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-top: 250px solid rgba(255, 221, 136, 0.5);
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: blur(8px);
+            z-index: 2;
+            transition: all 0.5s;
+        }
+
+        .dust-tail.highlight {
+            border-top: 250px solid rgba(255, 221, 136, 0.9);
+            filter: blur(4px);
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+        }
+
+        .ion-tail {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 350px solid rgba(68, 136, 255, 0.6);
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: blur(5px);
+            z-index: 1;
+            transition: all 0.5s;
+        }
+
+        .ion-tail.highlight {
+            border-top: 350px solid rgba(68, 136, 255, 0.95);
+            filter: blur(2px);
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .label {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .label.show {
+            opacity: 1;
+        }
+
+        .fun-fact {
+            background: linear-gradient(135deg, rgba(255, 100, 150, 0.3), rgba(100, 150, 255, 0.3));
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 2px solid rgba(255, 150, 200, 0.5);
+        }
+
+        .fun-fact h4 {
+            color: #ffaadd;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .fun-fact p {
+            color: #fff;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="left-panel">
+            <h1>Comet Explorer</h1>
+            
+
+
+            <div id="learnMode">
+                <div class="explanation-box">
+                    <h3>
+                        <span class="part-icon" style="background: #8b8b8b;"></span>
+                        1. Nucleus (The Core)
+                    </h3>
+                    <p>This is like a dirty snowball in space! It is made of ice, rock, and dust all frozen together. It is usually about 1-10 kilometers wide.</p>
+                    <button class="highlight-btn" onclick="highlightPart('nucleus')">Show Me!</button>
+                </div>
+
+                <div class="explanation-box">
+                    <h3>
+                        <span class="part-icon" style="background: #88ccff;"></span>
+                        2. Coma (The Cloud)
+                    </h3>
+                    <p>When the comet gets close to the Sun, the heat makes the ice turn into gas. This creates a big glowing cloud around the nucleus!</p>
+                    <button class="highlight-btn" onclick="highlightPart('coma')">Show Me!</button>
+                </div>
+
+                <div class="explanation-box">
+                    <h3>
+                        <span class="part-icon" style="background: #ffdd88;"></span>
+                        3. Dust Tail (Yellow Trail)
+                    </h3>
+                    <p>Sunlight pushes tiny dust particles away from the comet. This creates a curved, yellowish tail like smoke!</p>
+                    <button class="highlight-btn" onclick="highlightPart('dust')">Show Me!</button>
+                </div>
+
+                <div class="explanation-box">
+                    <h3>
+                        <span class="part-icon" style="background: #4488ff;"></span>
+                        4. Ion Tail (Blue Trail)
+                    </h3>
+                    <p>The solar wind (like a breeze from the Sun) blows gas particles away in a straight line. This makes a blue tail that always points away from the Sun!</p>
+                    <button class="highlight-btn" onclick="highlightPart('ion')">Show Me!</button>
+                </div>
+
+                <div class="fun-fact">
+                    <h4>Amazing Fact!</h4>
+                    <p>Comet tails can be millions of kilometers long - longer than the distance from Earth to the Moon!</p>
+                </div>
+
+                <div class="fun-fact">
+                    <h4>Did You Know?</h4>
+                    <p>The tails always point AWAY from the Sun, even when the comet is moving away from it!</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn" onclick="toggleAnimation()">Pause / Play</button>
+            </div>
+        </div>
+
+        <div class="simulation-area">
+            <div class="stars" id="stars"></div>
+            
+            <div class="solar-system">
+                <div class="sun" id="sun"></div>
+                <div class="orbit"></div>
+                <div class="comet">
+                    <div class="ion-tail" id="ionTail"></div>
+                    <div class="dust-tail" id="dustTail"></div>
+                    <div class="coma" id="coma"></div>
+                    <div class="nucleus" id="nucleus"></div>
+                </div>
+            </div>
+
+            <div class="label" id="label"></div>
+        </div>
+    </div>
+
+    <script>
+        var starsContainer = document.getElementById('stars');
+        var i;
+        for (i = 0; i < 200; i = i + 1) {
+            var star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        var isPaused = false;
+        function toggleAnimation() {
+            var comet = document.querySelector('.comet');
+            var solarSystem = document.querySelector('.solar-system');
+            
+            if (isPaused) {
+                comet.style.animationPlayState = 'running';
+                solarSystem.style.animationPlayState = 'running';
+            } else {
+                comet.style.animationPlayState = 'paused';
+                solarSystem.style.animationPlayState = 'paused';
+            }
+            isPaused = !isPaused;
+        }
+
+        function setMode(mode) {
+            var buttons = document.querySelectorAll('.mode-btn');
+            var i;
+            for (i = 0; i < buttons.length; i = i + 1) {
+                buttons[i].classList.remove('active');
+            }
+            event.target.classList.add('active');
+        }
+
+        function highlightPart(part) {
+            resetHighlights();
+            
+            var nucleus = document.getElementById('nucleus');
+            var coma = document.getElementById('coma');
+            var dustTail = document.getElementById('dustTail');
+            var ionTail = document.getElementById('ionTail');
+            var sun = document.getElementById('sun');
+            
+            if (part === 'nucleus') {
+                nucleus.classList.add('highlight');
+                showLabel('This is the NUCLEUS - the icy core of the comet!');
+            } else if (part === 'coma') {
+                coma.classList.add('highlight');
+                showLabel('This is the COMA - the glowing cloud around the comet!');
+            } else if (part === 'dust') {
+                dustTail.classList.add('highlight');
+                showLabel('This is the DUST TAIL - pushed by sunlight!');
+            } else if (part === 'ion') {
+                ionTail.classList.add('highlight');
+                showLabel('This is the ION TAIL - blown by solar wind!');
+            }
+            
+            setTimeout(resetHighlights, 3000);
+        }
+
+        function resetHighlights() {
+            var elements = document.querySelectorAll('.highlight');
+            var i;
+            for (i = 0; i < elements.length; i = i + 1) {
+                elements[i].classList.remove('highlight');
+            }
+            hideLabel();
+        }                                                       
+
+        function showLabel(text) {
+            var label = document.getElementById('label');
+            label.textContent = text;
+            label.classList.add('show');
+            label.style.left = '50%';
+            label.style.top = '20px';
+            label.style.transform = 'translateX(-50%)';
+        }
+
+        function hideLabel() {
+            var label = document.getElementById('label');
+            label.classList.remove('show');
+        }
+    </script>
+</body>
+</html>

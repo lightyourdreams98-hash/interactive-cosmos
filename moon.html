@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Moon's Structure and Phases</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0014 0%, #1a0a2e 50%, #0f0a1e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #e0e0e0, #a0a0c0, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #9090b0;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            text-align: center;
+            margin: 40px 0 30px;
+            color: #c0c0e0;
+        }
+
+        /* Moon Internal Structure */
+        .structure-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .moon-diagram {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .moon-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+
+        .moon-layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .moon-layer:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .moon-core-inner {
+            width: 20%;
+            height: 20%;
+            background: radial-gradient(circle, #d4af37 0%, #b8942e 50%, #8b6914 100%);
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.3);
+            z-index: 4;
+            animation: coreGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes coreGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.3); }
+            50% { box-shadow: 0 0 60px rgba(212, 175, 55, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.5); }
+        }
+
+        .moon-core-outer {
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(184, 148, 46, 0.7) 0%, rgba(139, 105, 20, 0.8) 100%);
+            box-shadow: 0 0 30px rgba(184, 148, 46, 0.5);
+            z-index: 3;
+        }
+
+        .moon-mantle {
+            width: 85%;
+            height: 85%;
+            background: radial-gradient(circle, rgba(100, 80, 70, 0.6) 0%, rgba(70, 60, 50, 0.7) 100%);
+            box-shadow: 0 0 25px rgba(100, 80, 70, 0.4);
+            z-index: 2;
+        }
+
+        .moon-crust {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(180, 180, 180, 0.9) 0%, rgba(140, 140, 140, 0.95) 100%);
+            box-shadow: 0 0 50px rgba(200, 200, 200, 0.5), inset -10px -10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        /* Craters on surface */
+        .crater {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(80, 80, 80, 0.8) 0%, rgba(60, 60, 60, 0.9) 100%);
+            box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.6);
+        }
+
+        .crater1 { width: 40px; height: 40px; top: 20%; left: 25%; }
+        .crater2 { width: 30px; height: 30px; top: 35%; left: 65%; }
+        .crater3 { width: 25px; height: 25px; top: 60%; left: 30%; }
+        .crater4 { width: 35px; height: 35px; top: 55%; left: 70%; }
+        .crater5 { width: 20px; height: 20px; top: 75%; left: 50%; }
+
+        .layer-label {
+            position: absolute;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.9), 0 0 5px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            backdrop-filter: blur(5px);
+        }
+
+        .label-crust { top: 10%; left: 5%; }
+        .label-mantle { top: 30%; left: 10%; }
+        .label-outer-core { top: 45%; left: 20%; }
+        .label-inner-core { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+        /* Structure Info Cards */
+        .structure-info {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .structure-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .structure-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px);
+        }
+
+        .card-crust { border-color: #b8b8b8; }
+        .card-crust h3 { color: #d0d0d0; }
+
+        .card-mantle { border-color: #8b7355; }
+        .card-mantle h3 { color: #a89080; }
+
+        .card-core { border-color: #d4af37; }
+        .card-core h3 { color: #d4af37; }
+
+        .structure-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .structure-card p {
+            line-height: 1.6;
+            color: #d0d0d0;
+            margin-bottom: 10px;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 0.9em;
+        }
+
+        .stat strong {
+            color: #c0c0e0;
+        }
+
+        /* Moon Phases Section */
+        .phases-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .phases-diagram {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .phases-container {
+            position: relative;
+            width: 700px;
+            height: 700px;
+        }
+
+        .orbit-path {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .earth {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #4a90e2 0%, #2e5f8a 50%, #1a3a5a 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(74, 144, 226, 0.6), inset -5px -5px 15px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .earth::before {
+            content: 'Earth';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .phase-moon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .phase-moon:hover {
+            transform: scale(1.2);
+        }
+
+        .phase-label {
+            position: absolute;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        /* New Moon */
+        .new-moon {
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: radial-gradient(circle, #3a3a3a 0%, #1a1a1a 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+        }
+
+        .label-new { top: 50%; right: -60px; transform: translateY(-50%); }
+
+        /* Waxing Crescent */
+        .waxing-crescent {
+            top: 15%;
+            right: 15%;
+            background: linear-gradient(90deg, #3a3a3a 0%, #3a3a3a 40%, #d0d0d0 40%, #d0d0d0 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -25.83s;
+        }
+
+        .label-waxing-crescent { top: 10%; right: 8%; }
+
+        /* First Quarter */
+        .first-quarter {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #3a3a3a 0%, #3a3a3a 50%, #d0d0d0 50%, #d0d0d0 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -22.12s;
+        }
+
+        .label-first-quarter { top: -20px; left: 50%; transform: translateX(-50%); }
+
+        /* Waxing Gibbous */
+        .waxing-gibbous {
+            top: 15%;
+            left: 15%;
+            background: linear-gradient(90deg, #3a3a3a 0%, #3a3a3a 25%, #d0d0d0 25%, #d0d0d0 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -18.43s;
+        }
+
+        .label-waxing-gibbous { top: 10%; left: 8%; }
+
+        /* Full Moon */
+        .full-moon {
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background: radial-gradient(circle, #f0f0f0 0%, #c0c0c0 100%);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.8), inset -5px -5px 15px rgba(0, 0, 0, 0.2);
+            animation: orbit 29.5s linear infinite, fullMoonGlow 2s ease-in-out infinite;
+            animation-delay: -14.75s, 0s;
+        }
+
+        @keyframes fullMoonGlow {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 255, 255, 0.8), inset -5px -5px 15px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 0 60px rgba(255, 255, 255, 1), inset -5px -5px 15px rgba(0, 0, 0, 0.2); }
+        }
+
+        .label-full { top: 50%; left: -60px; transform: translateY(-50%); }
+
+        /* Waning Gibbous */
+        .waning-gibbous {
+            bottom: 15%;
+            left: 15%;
+            background: linear-gradient(90deg, #d0d0d0 0%, #d0d0d0 75%, #3a3a3a 75%, #3a3a3a 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -11.06s;
+        }
+
+        .label-waning-gibbous { bottom: 10%; left: 8%; }
+
+        /* Last Quarter */
+        .last-quarter {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #d0d0d0 0%, #d0d0d0 50%, #3a3a3a 50%, #3a3a3a 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -7.37s;
+        }
+
+        .label-last-quarter { bottom: -20px; left: 50%; transform: translateX(-50%); }
+
+        /* Waning Crescent */
+        .waning-crescent {
+            bottom: 15%;
+            right: 15%;
+            background: linear-gradient(90deg, #d0d0d0 0%, #d0d0d0 60%, #3a3a3a 60%, #3a3a3a 100%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            animation: orbit 29.5s linear infinite;
+            animation-delay: -3.68s;
+        }
+
+        .label-waning-crescent { bottom: 10%; right: 8%; }
+
+        @keyframes orbit {
+            0% { 
+                offset-distance: 0%;
+            }
+            100% { 
+                offset-distance: 100%;
+            }
+        }
+
+        /* Sun indicator */
+        .sun-indicator {
+            position: absolute;
+            top: 50%;
+            right: -100px;
+            transform: translateY(-50%);
+            font-size: 3em;
+            animation: sunPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 200, 0, 0.8); }
+            50% { text-shadow: 0 0 40px rgba(255, 200, 0, 1); }
+        }
+
+        .sun-label {
+            position: absolute;
+            top: 50%;
+            right: -100px;
+            transform: translateY(30px);
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        /* Phase Info Cards */
+        .phases-info {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .phase-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #9090b0;
+            transition: all 0.3s ease;
+        }
+
+        .phase-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+        }
+
+        .phase-card h4 {
+            color: #c0c0e0;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .phase-card p {
+            color: #b0b0c0;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 2em; }
+            .moon-container { width: 400px; height: 400px; }
+            .phases-container { width: 500px; height: 500px; }
+            .orbit-path { width: 450px; height: 450px; }
+            .structure-info { grid-template-columns: 1fr; }
+            .phases-info { grid-template-columns: 1fr; }
+            .sun-indicator, .sun-label { right: -80px; font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌙 The Moon: Structure and Phases</h1>
+            <p class="subtitle">Earth's natural satellite with layered internal structure and fascinating orbital phases</p>
+        </header>
+
+        <!-- Internal Structure Section -->
+        <div class="structure-section">
+            <h2 class="section-title">Moon's Internal Structure</h2>
+            
+            <div class="moon-diagram">
+                <div class="moon-container">
+                    <div class="moon-layer moon-crust">
+                        <div class="crater crater1"></div>
+                        <div class="crater crater2"></div>
+                        <div class="crater crater3"></div>
+                        <div class="crater crater4"></div>
+                        <div class="crater crater5"></div>
+                    </div>
+                    <div class="moon-layer moon-mantle"></div>
+                    <div class="moon-layer moon-core-outer"></div>
+                    <div class="moon-layer moon-core-inner"></div>
+                    
+                    <span class="layer-label label-crust">Crust<br>30-60 km</span>
+                    <span class="layer-label label-mantle">Mantle<br>~1000 km</span>
+                    <span class="layer-label label-outer-core">Outer Core<br>(Fluid)</span>
+                    <span class="layer-label label-inner-core">Inner Core<br>(Solid)</span>
+                </div>
+            </div>
+
+            <div class="structure-info">
+                <div class="structure-card card-crust">
+                    <h3>🪨 Crust</h3>
+                    <p>The outermost rocky layer with distinct thickness variations between near and far sides.</p>
+                    <div class="stat"><strong>Thickness (Near Side):</strong> 30-40 km</div>
+                    <div class="stat"><strong>Thickness (Far Side):</strong> 50-60 km</div>
+                    <div class="stat"><strong>Composition:</strong> Oxygen, silicon, magnesium, iron, calcium, aluminum</div>
+                    <div class="stat"><strong>Features:</strong> Impact craters, volcanic domes, rilles, wrinkle ridges</div>
+                </div>
+
+                <div class="structure-card card-mantle">
+                    <h3>🌋 Mantle</h3>
+                    <p>The thick middle layer, mostly solid with some partially molten zones near the core.</p>
+                    <div class="stat"><strong>Depth:</strong> Extends to ~1,000 km</div>
+                    <div class="stat"><strong>State:</strong> Mostly solid with partial melt zones</div>
+                    <div class="stat"><strong>Composition:</strong> Silicate minerals (olivine, pyroxene) rich in Mg and Fe</div>
+                    <div class="stat"><strong>Activity:</strong> Moonquakes detected, related to Earth's tidal stresses</div>
+                </div>
+
+                <div class="structure-card card-core">
+                    <h3>⚙️ Core</h3>
+                    <p>A small but significant core with solid inner and fluid outer layers.</p>
+                    <div class="stat"><strong>Size:</strong> ~20% of Moon's radius</div>
+                    <div class="stat"><strong>Inner Core:</strong> Solid iron with nickel and sulfur</div>
+                    <div class="stat"><strong>Outer Core:</strong> Fluid/partially molten layer</div>
+                    <div class="stat"><strong>Magnetic Field:</strong> Weak, due to partial core melting</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Moon Phases Section -->
+        <div class="phases-section">
+            <h2 class="section-title">Moon Phases (29.5 Day Cycle)</h2>
+            
+            <div class="phases-diagram">
+                <div class="phases-container">
+                    <div class="orbit-path"></div>
+                    <div class="earth"></div>
+                    
+                    <div class="phase-moon new-moon"></div>
+                    <span class="phase-label label-new">New Moon</span>
+                    
+                    <div class="phase-moon waxing-crescent"></div>
+                    <span class="phase-label label-waxing-crescent">Waxing<br>Crescent</span>
+                    
+                    <div class="phase-moon first-quarter"></div>
+                    <span class="phase-label label-first-quarter">First Quarter</span>
+                    
+                    <div class="phase-moon waxing-gibbous"></div>
+                    <span class="phase-label label-waxing-gibbous">Waxing<br>Gibbous</span>
+                    
+                    <div class="phase-moon full-moon"></div>
+                    <span class="phase-label label-full">Full Moon</span>
+                    
+                    <div class="phase-moon waning-gibbous"></div>
+                    <span class="phase-label label-waning-gibbous">Waning<br>Gibbous</span>
+                    
+                    <div class="phase-moon last-quarter"></div>
+                    <span class="phase-label label-last-quarter">Last Quarter</span>
+                    
+                    <div class="phase-moon waning-crescent"></div>
+                    <span class="phase-label label-waning-crescent">Waning<br>Crescent</span>
+                    
+                    <div class="sun-indicator">☀️</div>
+                    <div class="sun-label">Sunlight</div>
+                </div>
+            </div>
+
+            <div class="phases-info">
+                <div class="phase-card">
+                    <h4>🌑 New Moon</h4>
+                    <p>Moon is between Earth and Sun. The side facing Earth is dark.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌒 Waxing Crescent</h4>
+                    <p>A thin crescent of light appears and grows larger each night.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌓 First Quarter</h4>
+                    <p>Half the Moon is illuminated (right side in Northern Hemisphere).</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌔 Waxing Gibbous</h4>
+                    <p>More than half is illuminated and continues increasing.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌕 Full Moon</h4>
+                    <p>The entire face visible from Earth is fully illuminated.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌖 Waning Gibbous</h4>
+                    <p>Illumination begins to decrease after the full moon.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌗 Last Quarter</h4>
+                    <p>Half is lit again, but opposite side compared to first quarter.</p>
+                </div>
+                <div class="phase-card">
+                    <h4>🌘 Waning Crescent</h4>
+                    <p>The light shrinks to a thin crescent before becoming new again.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

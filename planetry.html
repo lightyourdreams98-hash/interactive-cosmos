@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Planetary Transit </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to bottom, #000428 0%, #004e92 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .visualization-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .scene-3d {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            perspective: 1200px;
+            margin-bottom: 30px;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .space-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: rotateSpace 60s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .space-container.playing {
+            animation-play-state: running;
+        }
+
+        @keyframes rotateSpace {
+            from { transform: rotateY(0deg) rotateX(-15deg); }
+            to { transform: rotateY(360deg) rotateX(-15deg); }
+        }
+
+        .star-3d {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            transform: translate(-50%, -50%) translateZ(0px);
+            transform-style: preserve-3d;
+        }
+
+        .star-sphere {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff9e6 0%, #ffdb4d 20%, #ff9933 50%, #ff6600 100%);
+            box-shadow: 
+                0 0 80px rgba(255, 200, 100, 0.9),
+                0 0 140px rgba(255, 150, 50, 0.6),
+                inset -20px -20px 50px rgba(255, 100, 0, 0.3);
+            animation: starPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes starPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 
+                    0 0 80px rgba(255, 200, 100, 0.9),
+                    0 0 140px rgba(255, 150, 50, 0.6),
+                    inset -20px -20px 50px rgba(255, 100, 0, 0.3);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 
+                    0 0 100px rgba(255, 200, 100, 1),
+                    0 0 160px rgba(255, 150, 50, 0.8),
+                    inset -20px -20px 60px rgba(255, 100, 0, 0.4);
+            }
+        }
+
+        .orbit-ring-3d {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            transform: translate(-50%, -50%) rotateX(75deg);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .planet-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 500px;
+            height: 500px;
+            transform-style: preserve-3d;
+            animation: orbitPlanet 15s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .planet-orbit.playing {
+            animation-play-state: running;
+        }
+
+        @keyframes orbitPlanet {
+            from { 
+                transform: translate(-50%, -50%) rotateX(75deg) rotateZ(0deg);
+            }
+            to { 
+                transform: translate(-50%, -50%) rotateX(75deg) rotateZ(360deg);
+            }
+        }
+
+        .planet-3d {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+        }
+
+        .planet-sphere {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #a8c5e6 0%, #6b9bd1 30%, #4a7ba7 60%, #2d4a6b 100%);
+            box-shadow: 
+                0 0 30px rgba(100, 150, 200, 0.7),
+                inset -15px -15px 30px rgba(0, 0, 0, 0.6);
+            animation: rotatePlanet 8s linear infinite;
+        }
+
+        @keyframes rotatePlanet {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .planet-atmosphere {
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, rgba(150, 200, 255, 0.4), transparent 70%);
+            animation: atmosphereGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes atmosphereGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .observer-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .observer-indicator::before {
+            content: '👁️';
+            margin-right: 8px;
+        }
+
+        /* Light Curve Chart */
+        .light-curve-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .light-curve-title {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd700;
+        }
+
+        .curve-canvas {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .curve-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .curve-path {
+            position: absolute;
+            bottom: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #4CAF50;
+            transform-origin: left center;
+            animation: drawCurve 15s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .curve-path.playing {
+            animation-play-state: running;
+        }
+
+        .curve-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .transit-dip {
+            stroke: #4CAF50;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawTransit 15s linear infinite;
+            animation-play-state: paused;
+        }
+
+        .transit-dip.playing {
+            animation-play-state: running;
+        }
+
+        @keyframes drawTransit {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .curve-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-section h3 {
+            color: #ffd700;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .info-section p {
+            line-height: 1.6;
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .stat-box {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.1em;
+        }
+
+        /* Controls */
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .controls-title {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffd700;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .slider-container {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .slider-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+          
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .description-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-top: 30px;
+        }
+
+        .description-panel h2 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .description-panel p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .highlight {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .scene-3d {
+                height: 500px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .scene-3d {
+                height: 400px;
+            }
+
+            .star-3d {
+                width: 150px;
+                height: 150px;
+            }
+
+            .orbit-ring-3d,
+            .planet-orbit {
+                width: 350px;
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌌 3D Planetary Transit Simulator 🪐</h1>
+            <p class="tagline">Experience the cosmic alignment in three dimensions</p>
+        </header>
+
+        <div class="main-content">
+            <div class="visualization-panel">
+                <div class="scene-3d">
+                    <div class="space-container" id="spaceContainer">
+                        <div class="star-3d">
+                            <div class="star-sphere"></div>
+                        </div>
+                        <div class="orbit-ring-3d"></div>
+                        <div class="planet-orbit" id="planetOrbit">
+                            <div class="planet-3d">
+                                <div class="planet-atmosphere"></div>
+                                <div class="planet-sphere"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="observer-indicator">Observer's View (Earth)</div>
+                </div>
+
+                <div class="light-curve-container">
+                    <div class="light-curve-title">📉 Real-Time Light Curve</div>
+                    <div class="curve-canvas">
+                        <svg class="curve-svg" viewBox="0 0 800 200" preserveAspectRatio="none">
+                            <path class="transit-dip" id="transitCurve" d="M 0,50 L 200,50 Q 250,150 300,150 L 500,150 Q 550,150 600,50 L 800,50" />
+                        </svg>
+                    </div>
+                    <div class="curve-labels">
+                        <span>Start</span>
+                        <span>Transit Event</span>
+                        <span>End</span>
+                    </div>
+                </div>
+
+                <div class="controls-panel">
+                    <div class="controls-title">⚙️ Simulation Controls</div>
+                    
+                    <button class="btn" id="playPauseBtn">▶️ Start Simulation</button>
+                    
+                    <div class="control-group">
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span class="control-label">⚡ Orbital Speed</span>
+                                <span class="slider-value" id="speedValue">1.0x</span>
+                            </div>
+                            <input type="range" id="speedSlider" min="0.2" max="3" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span class="control-label">🔄 View Rotation</span>
+                                <span class="slider-value" id="rotationValue">0°</span>
+                            </div>
+                            <input type="range" id="rotationSlider" min="0" max="360" step="1" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-section">
+                    <h3>🎯 What You're Seeing</h3>
+                    <p>This 3D visualization shows a planet orbiting a star from Earth's perspective. When the planet passes directly between us and the star, it creates a <span class="highlight">transit event</span>.</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>📊 Current Measurements</h3>
+                    <div class="stat-box">
+                        <div class="stat-label">Transit Depth</div>
+                        <div class="stat-value">~1.2% brightness drop</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Orbital Period</div>
+                        <div class="stat-value">15 seconds (scaled)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Transit Duration</div>
+                        <div class="stat-value">~3 seconds (scaled)</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>🔬 Scientific Method</h3>
+                    <p>Astronomers detect exoplanets by measuring the tiny dip in starlight during transits. The light curve below shows this brightness change over time.</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>💡 Key Insights</h3>
+                    <p><strong>Size:</strong> Deeper dips = larger planets</p>
+                    <p><strong>Period:</strong> Time between transits = orbital period</p>
+                    <p><strong>Atmosphere:</strong> Spectral analysis reveals chemical composition</p>
+                </div>
+
+                <div class="info-section">
+                    <h3>🌍 Real Examples</h3>
+                    <p><strong>Mercury:</strong> Transits Sun every ~13 years from Earth</p>
+                    <p><strong>Venus:</strong> Rarest transits, next in 2117</p>
+                    <p><strong>Exoplanets:</strong> 1000s discovered via this method</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="description-panel">
+            <h2>🌟 Understanding Planetary Transits</h2>
+            
+            <p>A <span class="highlight">planetary transit</span> is one of the most important phenomena in modern astronomy. It occurs when a planet passes directly between its host star and an observer, temporarily blocking a small fraction of the star's light. This seemingly simple event has revolutionized our ability to discover and study planets beyond our solar system.</p>
+
+            <p><strong>The Geometry:</strong> For a transit to occur, three celestial bodies must align almost perfectly: the star, the planet, and the observer (Earth). The planet's orbital plane must pass through our line of sight, which only happens for a small fraction of planetary systems. This is why transit observations are so valuable when they occur.</p>
+
+            <p><strong>The Light Curve:</strong> The graph below the 3D visualization shows the <span class="highlight">light curve</span> - a plot of the star's brightness over time. During a transit, you'll notice the brightness dips as the planet blocks some starlight, then returns to normal as the planet moves away. The shape and depth of this curve tell us incredible amounts of information about the planet.</p>
+
+            <p><strong>What We Learn:</strong> From a simple transit observation, astronomers can determine the planet's size (from the depth of the dip), its orbital period (time between transits), its distance from the star, and even analyze its atmosphere by studying how different wavelengths of light are absorbed.</p>
+
+            <p><strong>Historical Impact:</strong> The transit method has discovered over 70% of all known exoplanets, including Earth-sized worlds in habitable zones where liquid water could exist. Missions like Kepler and TESS have used this technique to catalog thousands of alien worlds, fundamentally changing our understanding of planetary systems.</p>
+
+            <p><strong>In Our Solar System:</strong> We can also observe transits in our own solar system! Mercury transits the Sun about 13 times per century, appearing as a tiny black dot moving across the solar disk. Venus transits are much rarer, occurring in pairs separated by over a century - the last was in 2012, and the next won't happen until 2117.</p>
+        </div>
+    </div>
+
+    <script>
+        const spaceContainer = document.getElementById('spaceContainer');
+        const planetOrbit = document.getElementById('planetOrbit');
+        const transitCurve = document.getElementById('transitCurve');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const rotationSlider = document.getElementById('rotationSlider');
+        const rotationValue = document.getElementById('rotationValue');
+
+        let isPlaying = false;
+        let currentSpeed = 1.0;
+        let currentRotation = 0;
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', function() {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                spaceContainer.classList.add('playing');
+                planetOrbit.classList.add('playing');
+                transitCurve.classList.add('playing');
+                playPauseBtn.textContent = '⏸️ Pause Simulation';
+                playPauseBtn.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+            } else {
+                spaceContainer.classList.remove('playing');
+                planetOrbit.classList.remove('playing');
+                transitCurve.classList.remove('playing');
+                playPauseBtn.textContent = '▶️ Start Simulation';
+                playPauseBtn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+        });
+
+        // Speed control
+        speedSlider.addEventListener('input', function() {
+            currentSpeed = parseFloat(this.value);
+            speedValue.textContent = currentSpeed.toFixed(1) + 'x';
+            
+            const baseDuration = 15;
+            const spaceBaseDuration = 60;
+            planetOrbit.style.animationDuration = (baseDuration / currentSpeed) + 's';
+            spaceContainer.style.animationDuration = (spaceBaseDuration / currentSpeed) + 's';
+            transitCurve.style.animationDuration = (baseDuration / currentSpeed) + 's';
+        });
+
+        // Rotation control
+        rotationSlider.addEventListener('input', function() {
+            currentRotation = parseInt(this.value);
+            rotationValue.textContent = currentRotation + '°';
+            spaceContainer.style.transform = `rotateY(${currentRotation}deg) rotateX(-15deg)`;
+        });
+    </script>
+</body>
+</html>

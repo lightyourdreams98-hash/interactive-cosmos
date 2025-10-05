@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Flares & Earth's Magnetic Field</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffc857 100%);
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 10px 40px rgba(255, 107, 53, 0.3);
+            }
+            to {
+                box-shadow: 0 10px 60px rgba(255, 107, 53, 0.6);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #0a0e27;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #1a1a2e;
+            font-weight: 500;
+        }
+
+        .video-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-section h2 {
+            color: #ffc857;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #000;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #888;
+        }
+
+        .video-placeholder::before {
+            content: "▶";
+            display: block;
+            font-size: 4em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border-left: 5px solid #ff6b35;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+        }
+
+        h2 {
+            color: #ffc857;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 2px solid rgba(255, 200, 87, 0.3);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #ff6b35;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 200, 87, 0.1) 100%);
+            border-left: 4px solid #ff6b35;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(255, 200, 87, 0.05) 100%);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            color: #ffc857;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        .phase-timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 30px 0;
+        }
+
+        .phase {
+            position: relative;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            border-left: 4px solid #ff6b35;
+            padding-left: 30px;
+        }
+
+        .phase::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            background: #ffc857;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #ffc857;
+        }
+
+        .phase-title {
+            color: #ff6b35;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .content-section {
+                padding: 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .scroll-indicator {
+            text-align: center;
+            padding: 20px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☀️ Solar Flares</h1>
+            <p class="subtitle">Understanding the Sun's Fury and Earth's Magnetic Shield</p>
+        </header>
+
+        <div class="video-section">
+           
+               <iframe width="800" height="500" src="https://www.youtube.com/embed/HJfy8acFaOg?si=CtHpH-M7bGF_C9UC" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen ></iframe>
+               </div>
+        
+
+        <div class="content-section">
+            <h2>What Are Solar Flares?</h2>
+            <p>Solar flares are massive explosions on the Sun's surface that release enormous amounts of energy in a matter of minutes to hours. They occur when magnetic energy that has built up in the solar atmosphere is suddenly released, producing intense bursts of radiation across the electromagnetic spectrum.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">10²⁵</span>
+                    <span class="stat-label">Joules of Energy Released</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">20M°C</span>
+                    <span class="stat-label">Peak Temperature</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">8 min</span>
+                    <span class="stat-label">Time to Reach Earth</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">X-Class</span>
+                    <span class="stat-label">Most Powerful Flares</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>The Mechanism Behind Solar Flares</h2>
+            <p>Solar flares result from a process called magnetic reconnection, where the Sun's twisted magnetic field lines suddenly snap into a new configuration, releasing tremendous energy.</p>
+            
+            <div class="highlight-box">
+                <h3>Key Steps in Solar Flare Formation:</h3>
+                <ul>
+                    <li><strong>Magnetic Field Buildup:</strong> The Sun's differential rotation twists magnetic field lines</li>
+                    <li><strong>Field Line Tension:</strong> Enormous magnetic energy is stored as fields stretch and tangle</li>
+                    <li><strong>Reconnection Event:</strong> Opposite magnetic field lines suddenly reconnect</li>
+                    <li><strong>Energy Release:</strong> Magnetic energy converts to heat, light, and particle acceleration</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Earth's Magnetic Field: Our Protective Shield</h2>
+            <p>Earth's magnetosphere is a vast region of space dominated by our planet's magnetic field, extending tens of thousands of kilometers into space. This invisible shield protects us from the constant stream of charged particles from the Sun.</p>
+            
+            <h3>Magnetosphere Structure:</h3>
+            <ul>
+                <li><strong>Bow Shock:</strong> Where the solar wind first encounters Earth's magnetic field</li>
+                <li><strong>Magnetopause:</strong> The boundary between the magnetosphere and solar wind</li>
+                <li><strong>Magnetotail:</strong> The elongated portion extending away from the Sun</li>
+                <li><strong>Van Allen Radiation Belts:</strong> Two donut-shaped zones of trapped energetic particles</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>The Interaction: Three Phases of Impact</h2>
+            
+            <div class="phase-timeline">
+                <div class="phase">
+                    <div class="phase-title">Phase 1: Electromagnetic Radiation (8 minutes)</div>
+                    <p>X-rays and UV radiation arrive at the speed of light, ionizing the upper atmosphere and causing radio blackouts on the daylit side of Earth. GPS accuracy is affected, and high-frequency communications are disrupted.</p>
+                </div>
+
+                <div class="phase">
+                    <div class="phase-title">Phase 2: Solar Energetic Particles (30 min - Several hours)</div>
+                    <p>High-energy protons and electrons penetrate deep into the magnetosphere. Radiation levels increase at high altitudes, posing risks to airline passengers on polar routes, satellites, and astronauts in space.</p>
+                </div>
+
+                <div class="phase">
+                    <div class="phase-title">Phase 3: Coronal Mass Ejection Impact (1-3 days)</div>
+                    <p>If a CME is Earth-directed, the most dramatic effects occur. The CME's shock wave compresses Earth's magnetosphere, and if magnetic reconnection occurs, a geomagnetic storm develops. This creates spectacular auroras and can affect power grids and technology worldwide.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Effects on Earth's Systems</h2>
+            
+            <h3>🛰️ Space-Based Technology</h3>
+            <ul>
+                <li>Satellite damage from increased radiation and atmospheric drag</li>
+                <li>GPS disruption affecting navigation and timing systems</li>
+                <li>Communication satellite failures and signal degradation</li>
+            </ul>
+
+            <h3>⚡ Ground-Based Infrastructure</h3>
+            <ul>
+                <li>Power grid failures from geomagnetically induced currents (GICs)</li>
+                <li>Transformer damage potentially causing widespread blackouts</li>
+                <li>Pipeline corrosion and railway signal disruptions</li>
+            </ul>
+
+            <h3>📡 Communications</h3>
+            <ul>
+                <li>Complete HF radio blackouts during major events</li>
+                <li>Low-frequency navigation system disruptions</li>
+                <li>Aviation communication challenges</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>Notable Historical Events</h2>
+            
+            <div class="highlight-box">
+                <h3>🔥 The Carrington Event (1859)</h3>
+                <p>The most powerful geomagnetic storm on record. Telegraph systems worldwide failed, operators received electric shocks, and auroras were visible near the equator. If it occurred today, estimated damages could exceed $2 trillion.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h3>⚡ Quebec Blackout (March 1989)</h3>
+                <p>A powerful CME caused a 9-hour blackout affecting 6 million people. Transformers were damaged across North America, demonstrating our vulnerability to space weather.</p>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎃 Halloween Storms (October 2003)</h3>
+                <p>A series of X-class flares caused widespread satellite anomalies, a one-hour blackout in Sweden, and significant GPS system disruptions worldwide.</p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Aurora Formation</h2>
+            <p>When charged particles from solar flares and CMEs collide with atmospheric gases at altitudes of 100-400 km, they produce the stunning auroras (Northern and Southern Lights).</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #4ade80;">Green</span>
+                    <span class="stat-label">Oxygen (Most Common)</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #ef4444;">Red</span>
+                    <span class="stat-label">High-Altitude Oxygen</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #3b82f6;">Blue</span>
+                    <span class="stat-label">Nitrogen</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" style="color: #a855f7;">Purple</span>
+                    <span class="stat-label">Nitrogen Mix</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Space Weather Monitoring</h2>
+            <p>Scientists continuously monitor solar activity using space-based observatories like SOHO, SDO, and STEREO satellites, along with ground-based magnetometer networks worldwide. Organizations like NOAA's Space Weather Prediction Center provide forecasts and warnings:</p>
+            
+            <ul>
+                <li><strong>15-30 minute warnings</strong> for electromagnetic effects</li>
+                <li><strong>1-3 day warnings</strong> for CME impacts</li>
+                <li><strong>Real-time monitoring</strong> of geomagnetic field variations</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>🌍 Understanding the dynamic Sun-Earth connection is crucial as our society becomes increasingly dependent on space-based technology.</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">The interaction between solar flares and Earth's magnetic field represents one of nature's most powerful displays of electromagnetic forces at work.</p>
+        </footer>
+    </div>
+</body>
+</html>

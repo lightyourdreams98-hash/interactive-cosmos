@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eclipsing Binary Stars</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+
+        /* 3D Scene - IMPROVED */
+        .scene-container {
+            perspective: 1200px;
+            height: 550px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(20, 30, 60, 0.5), rgba(5, 10, 20, 0.9));
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .orbit-system {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            transform-style: preserve-3d;
+            animation: rotateSystem 25s linear infinite;
+        }
+
+        @keyframes rotateSystem {
+            from { transform: rotateY(0deg) rotateX(70deg); }
+            to { transform: rotateY(360deg) rotateX(70deg); }
+        }
+
+        .orbit-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px dashed rgba(100, 150, 255, 0.4);
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.2);
+        }
+
+        .center-point {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px #fff, 0 0 60px rgba(255, 255, 255, 0.5);
+            z-index: 5;
+        }
+
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            animation: orbit 10s linear infinite;
+            filter: brightness(1.3) contrast(1.2);
+        }
+
+        /* PRIMARY STAR - Much more visible */
+        .star-primary {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 35% 35%, #ffffff, #ffeb3b 30%, #ff9800 60%, #ff5722);
+            margin-left: -60px;
+            margin-top: -60px;
+            animation-name: orbitPrimary;
+            box-shadow: 
+                0 0 40px rgba(255, 183, 77, 1),
+                0 0 80px rgba(255, 152, 0, 0.8),
+                0 0 120px rgba(255, 87, 34, 0.6),
+                inset 0 0 40px rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 235, 59, 0.6);
+        }
+
+        /* Add corona effect */
+        .star-primary::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(255, 183, 77, 0.4), transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        /* SECONDARY STAR - Much more visible */
+        .star-secondary {
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle at 35% 35%, #e3f2fd, #64b5f6 30%, #2196f3 60%, #1565c0);
+            margin-left: -45px;
+            margin-top: -45px;
+            animation-name: orbitSecondary;
+            box-shadow: 
+                0 0 35px rgba(33, 150, 243, 1),
+                0 0 70px rgba(33, 150, 243, 0.8),
+                0 0 105px rgba(21, 101, 192, 0.6),
+                inset 0 0 30px rgba(227, 242, 253, 0.5);
+            border: 2px solid rgba(100, 181, 246, 0.6);
+        }
+
+        /* Add corona effect */
+        .star-secondary::before {
+            content: '';
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            background: radial-gradient(circle, rgba(33, 150, 243, 0.4), transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+        }
+
+        @keyframes orbitPrimary {
+            0% { transform: translate(-150px, 0px) translateZ(20px); }
+            25% { transform: translate(0px, -150px) translateZ(20px); }
+            50% { transform: translate(150px, 0px) translateZ(20px); }
+            75% { transform: translate(0px, 150px) translateZ(20px); }
+            100% { transform: translate(-150px, 0px) translateZ(20px); }
+        }
+
+        @keyframes orbitSecondary {
+            0% { transform: translate(150px, 0px) translateZ(-20px); }
+            25% { transform: translate(0px, 150px) translateZ(-20px); }
+            50% { transform: translate(-150px, 0px) translateZ(-20px); }
+            75% { transform: translate(0px, -150px) translateZ(-20px); }
+            100% { transform: translate(150px, 0px) translateZ(-20px); }
+        }
+
+        /* Star labels */
+        .star-label {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            white-space: nowrap;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+
+        .label-primary {
+            top: 180px;
+            left: 100px;
+            color: #ffb74d;
+            border-color: #ffb74d;
+        }
+
+        .label-secondary {
+            bottom: 180px;
+            right: 100px;
+            color: #64b5f6;
+            border-color: #64b5f6;
+        }
+
+        /* Light Curve */
+        .light-curve-container {
+            height: 300px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .curve-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .grid-line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .light-curve-path {
+            fill: none;
+            stroke: #00ff88;
+            stroke-width: 3;
+            filter: drop-shadow(0 0 8px #00ff88);
+        }
+
+        .curve-point {
+            fill: #ff4444;
+            animation: pulsePoint 1s ease-in-out infinite;
+        }
+
+        @keyframes pulsePoint {
+            0%, 100% { r: 5; opacity: 1; }
+            50% { r: 7; opacity: 0.7; }
+        }
+
+        .axis-label {
+            fill: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Phase Indicator */
+        .phase-indicator {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .phase-item {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .phase-item.active {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .phase-item h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .phase-item p {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #00ff88;
+        }
+
+        .info-item h4 {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #00ff88;
+        }
+
+        /* Stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star-bg {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* View controls */
+        .view-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(135deg, #64b5f6, #2196f3);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="starField"></div>
+    
+    <div class="container">
+        <h1>⭐ Eclipsing Binary Stars Simulation ⭐</h1>
+        <p class="subtitle">Interactive 3D visualization showing orbital mechanics and light curve analysis</p>
+
+        <div class="main-grid">
+            <!-- 3D Orbital View -->
+            <div class="card">
+                <h2>🌌 3D Orbital View</h2>
+                <div class="scene-container">
+                    <div class="orbit-system" id="orbitSystem">
+                        <div class="orbit-ring"></div>
+                        <div class="center-point"></div>
+                        <div class="star star-primary" id="primaryStar"></div>
+                        <div class="star star-secondary" id="secondaryStar"></div>
+                        <div class="star-label label-primary">Primary Star (Hot)</div>
+                        <div class="star-label label-secondary">Secondary Star (Cool)</div>
+                    </div>
+                </div>
+                <div class="view-controls">
+                    <button class="btn" onclick="toggleAnimation()">⏯️ Play/Pause</button>
+                    <button class="btn secondary" onclick="changeSpeed()">⚡ Speed: <span id="speedDisplay">1x</span></button>
+                </div>
+                <div class="phase-indicator">
+                    <div class="phase-item" id="phaseMax">
+                        <h3>Maximum</h3>
+                        <p>Both visible</p>
+                    </div>
+                    <div class="phase-item" id="phasePrimary">
+                        <h3>Primary Eclipse</h3>
+                        <p>Deepest minimum</p>
+                    </div>
+                    <div class="phase-item" id="phaseSecondary">
+                        <h3>Secondary Eclipse</h3>
+                        <p>Shallow minimum</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Light Curve -->
+            <div class="card">
+                <h2>📊 Light Curve Analysis</h2>
+                <div class="light-curve-container">
+                    <svg class="curve-svg" viewBox="0 0 600 260">
+                        <!-- Grid -->
+                        <line x1="50" y1="20" x2="50" y2="220" class="grid-line" stroke-width="2"/>
+                        <line x1="50" y1="220" x2="570" y2="220" class="grid-line" stroke-width="2"/>
+                        
+                        <!-- Grid lines -->
+                        <line x1="50" y1="70" x2="570" y2="70" class="grid-line"/>
+                        <line x1="50" y1="120" x2="570" y2="120" class="grid-line"/>
+                        <line x1="50" y1="170" x2="570" y2="170" class="grid-line"/>
+                        
+                        <line x1="180" y1="20" x2="180" y2="220" class="grid-line"/>
+                        <line x1="310" y1="20" x2="310" y2="220" class="grid-line"/>
+                        <line x1="440" y1="20" x2="440" y2="220" class="grid-line"/>
+                        
+                        <!-- Light curve path -->
+                        <path class="light-curve-path" d="M 50,70 L 130,70 Q 160,180 180,180 Q 200,180 230,70 L 310,70 Q 340,140 360,140 Q 380,140 410,70 L 490,70 Q 520,180 540,180 Q 560,180 570,70" id="curvePath"/>
+                        
+                        <!-- Current position marker -->
+                        <circle class="curve-point" cx="50" cy="70" r="5" id="curveMarker"/>
+                        
+                        <!-- Labels -->
+                        <text x="10" y="75" class="axis-label">Bright</text>
+                        <text x="15" y="185" class="axis-label">Dim</text>
+                        <text x="270" y="245" class="axis-label">Orbital Phase</text>
+                        <text x="165" y="245" class="axis-label" opacity="0.6">1°</text>
+                        <text x="295" y="245" class="axis-label" opacity="0.6">2°</text>
+                        <text x="425" y="245" class="axis-label" opacity="0.6">1°</text>
+                    </svg>
+                </div>
+                
+                <div class="info-panel">
+                    <div class="info-item">
+                        <h4>Current Phase</h4>
+                        <p id="currentPhase">0°</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Brightness</h4>
+                        <p id="currentBrightness">100%</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Orbital Period</h4>
+                        <p id="orbitalPeriod">10.0 sec</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Eclipse Type</h4>
+                        <p id="eclipseType">None</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Information -->
+        <div class="card">
+            <h2>📚 Understanding the Simulation</h2>
+            <div style="line-height: 1.8; opacity: 0.9;">
+                <p><strong>What you're seeing:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>🟡 Gold/Orange Star (Primary):</strong> The larger, brighter, hotter star - typically more massive and luminous</li>
+                    <li><strong>🔵 Blue Star (Secondary):</strong> The smaller, cooler companion star with less mass and luminosity</li>
+                    <li><strong>⚪ White Point:</strong> The barycenter (center of mass) - the point around which both stars orbit</li>
+                    <li><strong>📈 Light Curve:</strong> Shows how the total brightness changes as the stars orbit and eclipse each other</li>
+                    <li><strong>✨ Corona Effects:</strong> The glowing halos represent the stellar atmospheres and energy emission</li>
+                </ul>
+                
+                <p style="margin-top: 15px;"><strong>Key Observations:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Primary Eclipse (Deep dip):</strong> Occurs when the secondary star passes in front of the brighter primary, blocking more light - causes ~30% brightness drop</li>
+                    <li><strong>Secondary Eclipse (Shallow dip):</strong> Occurs when the primary passes in front of the fainter secondary, blocking less light - causes ~20% brightness drop</li>
+                    <li><strong>Flat Maxima:</strong> Periods when both stars are fully visible from our viewing angle - full system brightness</li>
+                    <li><strong>3D Perspective:</strong> The rotation shows how the orbital plane is tilted, giving us the edge-on view needed for eclipses</li>
+                </ul>
+
+                <p style="margin-top: 15px;"><strong>Real-World Example:</strong> The famous star Algol (β Persei) is an eclipsing binary that dims noticeably every 2.87 days, visible to the naked eye! Ancient astronomers called it the "Demon Star" because of its mysterious brightness changes.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create starfield background with more stars
+        const starField = document.getElementById('starField');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star-bg';
+            const size = Math.random() * 3 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            starField.appendChild(star);
+        }
+
+        // Animation and phase tracking
+        let currentPhase = 0;
+        let phaseSpeed = 0.5;
+        let animationPaused = false;
+        let speedMultiplier = 1;
+        const speeds = [0.5, 1, 2, 4];
+        let currentSpeedIndex = 1;
+
+        function toggleAnimation() {
+            animationPaused = !animationPaused;
+            const orbitSystem = document.getElementById('orbitSystem');
+            const stars = document.querySelectorAll('.star');
+            
+            if (animationPaused) {
+                orbitSystem.style.animationPlayState = 'paused';
+                stars.forEach(star => star.style.animationPlayState = 'paused');
+            } else {
+                orbitSystem.style.animationPlayState = 'running';
+                stars.forEach(star => star.style.animationPlayState = 'running');
+            }
+        }
+
+        function changeSpeed() {
+            currentSpeedIndex = (currentSpeedIndex + 1) % speeds.length;
+            speedMultiplier = speeds[currentSpeedIndex];
+            document.getElementById('speedDisplay').textContent = speedMultiplier + 'x';
+            
+            const orbitSystem = document.getElementById('orbitSystem');
+            const stars = document.querySelectorAll('.star');
+            const duration = 25 / speedMultiplier;
+            const starDuration = 10 / speedMultiplier;
+            
+            orbitSystem.style.animation = `rotateSystem ${duration}s linear infinite`;
+            stars.forEach(star => {
+                const name = star.classList.contains('star-primary') ? 'orbitPrimary' : 'orbitSecondary';
+                star.style.animation = `orbit ${starDuration}s linear infinite, ${name} ${starDuration}s linear infinite`;
+            });
+        }
+
+        function updateSimulation() {
+            if (!animationPaused) {
+                currentPhase = (currentPhase + (phaseSpeed * speedMultiplier)) % 360;
+            }
+            
+            // Update phase display
+            document.getElementById('currentPhase').textContent = Math.round(currentPhase) + '°';
+            
+            // Calculate brightness based on phase
+            let brightness = 100;
+            let eclipseType = 'None';
+            
+            // Primary eclipse around 0° (±30°)
+            if (currentPhase < 30 || currentPhase > 330) {
+                const eclipseProgress = currentPhase > 330 ? (360 - currentPhase) : currentPhase;
+                brightness = 100 - (30 - eclipseProgress) * 2;
+                eclipseType = 'Primary';
+            }
+            // Secondary eclipse around 180° (±20°)
+            else if (currentPhase > 160 && currentPhase < 200) {
+                const eclipseProgress = Math.abs(180 - currentPhase);
+                brightness = 100 - (20 - eclipseProgress) * 1;
+                eclipseType = 'Secondary';
+            }
+            
+            document.getElementById('currentBrightness').textContent = Math.round(brightness) + '%';
+            document.getElementById('eclipseType').textContent = eclipseType;
+            
+            // Update light curve marker position
+            const pathLength = 520;
+            const position = (currentPhase / 360) * pathLength + 50;
+            const marker = document.getElementById('curveMarker');
+            
+            // Calculate y position based on phase
+            let yPos = 70;
+            if (currentPhase < 30 || currentPhase > 330) {
+                const eclipseProgress = currentPhase > 330 ? (360 - currentPhase) : currentPhase;
+                yPos = 70 + (30 - eclipseProgress) * 3.67;
+            } else if (currentPhase > 160 && currentPhase < 200) {
+                const eclipseProgress = Math.abs(180 - currentPhase);
+                yPos = 70 + (20 - eclipseProgress) * 3.5;
+            }
+            
+            marker.setAttribute('cx', position);
+            marker.setAttribute('cy', yPos);
+            
+            // Update phase indicators
+            document.querySelectorAll('.phase-item').forEach(item => item.classList.remove('active'));
+            if (eclipseType === 'Primary') {
+                document.getElementById('phasePrimary').classList.add('active');
+            } else if (eclipseType === 'Secondary') {
+                document.getElementById('phaseSecondary').classList.add('active');
+            } else {
+                document.getElementById('phaseMax').classList.add('active');
+            }
+            
+            requestAnimationFrame(updateSimulation);
+        }
+        
+        updateSimulation();
+    </script>
+</body>
+</html>

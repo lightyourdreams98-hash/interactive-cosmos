@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NASA Achievements - Interactive 3D Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            perspective: 1000px;
+        }
+
+        /* Animated Starfield Background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Header */
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0,0,50,0.8) 0%, rgba(0,0,0,0.9) 100%);
+            z-index: 1;
+        }
+
+        .nasa-logo {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #0B3D91 0%, #FC3D21 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 60px rgba(11, 61, 145, 0.8);
+            transform-style: preserve-3d;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotateY(0deg); }
+            50% { transform: translateY(-20px) rotateY(180deg); }
+        }
+
+        .hero h1 {
+            font-size: 4em;
+            background: linear-gradient(45deg, #0B3D91, #FC3D21, #0B3D91);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            animation: slideDown 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.5em;
+            color: #aaa;
+            max-width: 800px;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            font-size: 2em;
+            color: #0B3D91;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-20px); }
+        }
+
+        /* Timeline Container */
+        .timeline-container {
+            position: relative;
+            padding: 100px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,30,0.9) 100%);
+            z-index: 1;
+        }
+
+        .timeline-title {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 80px;
+            color: #0B3D91;
+            text-shadow: 0 0 20px rgba(11, 61, 145, 0.5);
+        }
+
+        /* 3D Cards */
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .achievement-card {
+            position: relative;
+            background: rgba(11, 61, 145, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            border: 2px solid rgba(11, 61, 145, 0.3);
+            backdrop-filter: blur(10px);
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            animation: cardEntrance 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes cardEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(-15deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        .achievement-card:nth-child(1) { animation-delay: 0.1s; }
+        .achievement-card:nth-child(2) { animation-delay: 0.2s; }
+        .achievement-card:nth-child(3) { animation-delay: 0.3s; }
+        .achievement-card:nth-child(4) { animation-delay: 0.4s; }
+        .achievement-card:nth-child(5) { animation-delay: 0.5s; }
+        .achievement-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .achievement-card:hover {
+            transform: translateY(-20px) rotateY(5deg) scale(1.05);
+            border-color: #0B3D91;
+            box-shadow: 0 20px 60px rgba(11, 61, 145, 0.4);
+            background: rgba(11, 61, 145, 0.2);
+        }
+
+        .achievement-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #0B3D91, #FC3D21);
+            border-radius: 20px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .achievement-card:hover::before {
+            opacity: 0.5;
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #0B3D91, #FC3D21);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            animation: rotate3d 4s ease-in-out infinite;
+            box-shadow: 0 10px 30px rgba(11, 61, 145, 0.5);
+        }
+
+        @keyframes rotate3d {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .card-year {
+            font-size: 1.2em;
+            color: #FC3D21;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .card-description {
+            font-size: 1em;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-impact {
+            background: rgba(252, 61, 33, 0.1);
+            border-left: 3px solid #FC3D21;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            color: #ddd;
+        }
+
+        .card-impact strong {
+            color: #FC3D21;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Era Sections */
+        .era-section {
+            margin-bottom: 100px;
+        }
+
+        .era-header {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 50px;
+            color: #FC3D21;
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .era-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #FC3D21, transparent);
+        }
+
+        /* Interactive 3D Rocket */
+        .rocket-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .rocket-container:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+
+        .rocket {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FC3D21, #0B3D91);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            box-shadow: 0 0 30px rgba(252, 61, 33, 0.6);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(252, 61, 33, 0.6); }
+            50% { box-shadow: 0 0 50px rgba(252, 61, 33, 1); }
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: rgba(11, 61, 145, 0.1);
+            padding: 80px 20px;
+            text-align: center;
+            margin: 100px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) rotateX(10deg);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #FC3D21;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.2em;
+            color: #aaa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5em; }
+            .hero p { font-size: 1.2em; }
+            .timeline-title { font-size: 2em; }
+            .achievement-grid { grid-template-columns: 1fr; }
+            .rocket-container { bottom: 20px; right: 20px; width: 60px; height: 60px; }
+        }
+
+        /* Scroll Animation Observer */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Starfield Background -->
+    <div class="stars" id="starfield"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="nasa-logo">🚀</div>
+        <h1>NASA Achievements</h1>
+        <p>Pioneering space exploration, human missions, and astronomical discoveries that shaped technology and international cooperation</p>
+        <div class="scroll-indicator">↓</div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <h2 class="timeline-title">By The Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">60+</div>
+                <div class="stat-label">Years of Exploration</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Humans on the Moon</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">Satellites Launched</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Possibilities</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Container -->
+    <div class="timeline-container">
+        
+        <!-- Early Achievements Era -->
+        <div class="era-section">
+            <h2 class="era-header">Key Early Achievements</h2>
+            <div class="achievement-grid">
+                
+                <div class="achievement-card">
+                    <div class="card-icon">🛰️</div>
+                    <div class="card-year">1958</div>
+                    <h3 class="card-title">Explorer 1</h3>
+                    <p class="card-description">America's first satellite successfully launched into orbit, marking the United States' entry into the space age.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Discovered the Van Allen radiation belts, revolutionizing our understanding of Earth's magnetic environment and space weather.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">👨‍🚀</div>
+                    <div class="card-year">1961-1966</div>
+                    <h3 class="card-title">Mercury & Gemini Programs</h3>
+                    <p class="card-description">Two pioneering programs that developed critical human spaceflight capabilities and techniques.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Mastered orbital rendezvous, spacewalks, and long-duration missions, establishing the groundwork for the Apollo lunar missions.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Apollo Era -->
+        <div class="era-section">
+            <h2 class="era-header">The Apollo Era</h2>
+            <div class="achievement-grid">
+                
+                <div class="achievement-card">
+                    <div class="card-icon">🌕</div>
+                    <div class="card-year">1969</div>
+                    <h3 class="card-title">Apollo 11 Moon Landing</h3>
+                    <p class="card-description">Neil Armstrong and Buzz Aldrin became the first humans to set foot on the Moon while Michael Collins orbited above.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        A historic milestone in human exploration that demonstrated humanity's capability to reach other worlds and inspired generations of scientists and engineers.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">⚠️</div>
+                    <div class="card-year">1970</div>
+                    <h3 class="card-title">Apollo 13 Safe Return</h3>
+                    <p class="card-description">After an onboard explosion crippled the spacecraft, the crew and ground control worked together to bring the astronauts home safely.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Demonstrated NASA's exceptional crisis management, technical problem-solving abilities, and the phrase "Houston, we have a problem" became iconic.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🔬</div>
+                    <div class="card-year">1969-1972</div>
+                    <h3 class="card-title">Lunar Science Missions</h3>
+                    <p class="card-description">Six successful Apollo landings returned 842 pounds of lunar samples and conducted extensive scientific experiments.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Transformed our understanding of the Moon's geology, origin, and the early history of the solar system.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Space Shuttle & Beyond -->
+        <div class="era-section">
+            <h2 class="era-header">Innovation & Exploration</h2>
+            <div class="achievement-grid">
+                
+                <div class="achievement-card">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-year">1981-2011</div>
+                    <h3 class="card-title">Space Shuttle Program</h3>
+                    <p class="card-description">The world's first reusable spacecraft system completed 135 missions over 30 years.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Deployed satellites, built the International Space Station, serviced the Hubble Space Telescope, and made space more accessible.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🔭</div>
+                    <div class="card-year">1990</div>
+                    <h3 class="card-title">Hubble Space Telescope</h3>
+                    <p class="card-description">Revolutionary space observatory that has provided unprecedented views of the universe for over 30 years.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Made groundbreaking discoveries about dark energy, exoplanets, and the age of the universe while capturing iconic images that inspired millions.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🛸</div>
+                    <div class="card-year">1998-Present</div>
+                    <h3 class="card-title">International Space Station</h3>
+                    <p class="card-description">A collaborative orbiting laboratory involving five space agencies from around the world.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Symbol of international cooperation, advancing research in microgravity, and continuous human presence in space for over 20 years.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🔴</div>
+                    <div class="card-year">2012-Present</div>
+                    <h3 class="card-title">Mars Rovers</h3>
+                    <p class="card-description">Curiosity, Perseverance, and other rovers have explored the Martian surface, searching for signs of past life.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Discovered evidence of ancient water, analyzed Martian geology, and paved the way for future human missions to Mars.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🌌</div>
+                    <div class="card-year">2021</div>
+                    <h3 class="card-title">James Webb Space Telescope</h3>
+                    <p class="card-description">The most powerful space telescope ever built, observing the universe in infrared wavelengths.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Revealing the earliest galaxies, studying exoplanet atmospheres, and providing insights into the formation of stars and planetary systems.
+                    </div>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="card-icon">🌙</div>
+                    <div class="card-year">2024-Future</div>
+                    <h3 class="card-title">Artemis Program</h3>
+                    <p class="card-description">Next generation of lunar exploration aiming to return humans to the Moon and establish sustainable presence.</p>
+                    <div class="card-impact">
+                        <strong>Impact:</strong>
+                        Will land the first woman and person of color on the Moon, establish lunar base, and prepare for Mars missions.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Floating Rocket Button -->
+    <div class="rocket-container" onclick="scrollToTop()">
+        <div class="rocket">🚀</div>
+    </div>
+
+    <script>
+        // Generate Starfield
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starfield.appendChild(star);
+        }
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 3D Tilt Effect on Cards
+        document.querySelectorAll('.achievement-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `translateY(-20px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        });
+
+        // Parallax effect for stats on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.stat-card');
+            
+            parallaxElements.forEach((el, index) => {
+                const speed = 0.5 + (index * 0.1);
+                el.style.transform = `translateY(${scrolled * speed * 0.1}px)`;
+            });
+        });
+
+        // Add tilt to stats cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 5;
+                const rotateY = (centerX - x) / 5;
+                
+                card.style.transform = `translateY(-10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+            });
+        });
+    </script>
+</body>
+</html>

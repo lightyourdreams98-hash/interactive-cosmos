@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sun's Layers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #FDB813, #FF6B35, #FDB813);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(253, 184, 19, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #a0a0a0;
+            margin-bottom: 30px;
+        }
+
+        .composition {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .composition h3 {
+            color: #FDB813;
+            margin-bottom: 15px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .sun-diagram {
+            width: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+        }
+
+        .sun-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.02); }
+        }
+
+        .layer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .layer:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .core {
+            width: 20%;
+            height: 20%;
+            background: radial-gradient(circle, #fff9e6 0%, #FFD700 30%, #FF8C00 70%, #FF4500 100%);
+            box-shadow: 0 0 60px rgba(255, 215, 0, 0.8), inset 0 0 40px rgba(255, 255, 255, 0.5);
+            z-index: 5;
+        }
+
+        .radiative {
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255, 140, 0, 0.6) 0%, rgba(255, 69, 0, 0.7) 100%);
+            box-shadow: 0 0 50px rgba(255, 140, 0, 0.6);
+            z-index: 4;
+        }
+
+        .convective {
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255, 100, 0, 0.5) 0%, rgba(255, 69, 0, 0.6) 100%);
+            box-shadow: 0 0 40px rgba(255, 100, 0, 0.5);
+            z-index: 3;
+        }
+
+        .photosphere {
+            width: 110%;
+            height: 110%;
+            background: radial-gradient(circle, rgba(253, 184, 19, 0.4) 0%, rgba(253, 184, 19, 0.5) 100%);
+            box-shadow: 0 0 30px rgba(253, 184, 19, 0.6);
+            z-index: 2;
+        }
+
+        .chromosphere {
+            width: 115%;
+            height: 115%;
+            background: radial-gradient(circle, transparent 70%, rgba(255, 69, 0, 0.3) 100%);
+            z-index: 1;
+        }
+
+        .corona {
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, transparent 60%, rgba(200, 200, 255, 0.1) 80%, rgba(150, 150, 255, 0.2) 100%);
+            animation: coronaPulse 6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes coronaPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .layer-label {
+            position: absolute;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        .label-core { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .label-radiative { top: 30%; left: 15%; }
+        .label-convective { top: 15%; left: 25%; }
+        .label-photosphere { top: 5%; left: 40%; }
+        .label-chromosphere { top: 2%; left: 60%; }
+        .label-corona { top: 0; left: 75%; }
+
+        .info-panel {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .layer-info {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .layer-info:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .layer-info h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .layer-info p {
+            line-height: 1.6;
+            color: #d0d0d0;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .stat strong {
+            color: #FDB813;
+        }
+
+        .info-core { border-color: #FFD700; }
+        .info-core h3 { color: #FFD700; }
+
+        .info-radiative { border-color: #FF8C00; }
+        .info-radiative h3 { color: #FF8C00; }
+
+        .info-convective { border-color: #FF6347; }
+        .info-convective h3 { color: #FF6347; }
+
+        .info-photosphere { border-color: #FDB813; }
+        .info-photosphere h3 { color: #FDB813; }
+
+        .info-chromosphere { border-color: #FF4500; }
+        .info-chromosphere h3 { color: #FF4500; }
+
+        .info-corona { border-color: #B0C4DE; }
+        .info-corona h3 { color: #B0C4DE; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+            .info-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .sun-container {
+                width: 400px;
+                height: 400px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+
+        .sunspots {
+            position: absolute;
+            top: 45%;
+            left: 25%;
+            width: 15px;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+        }
+
+        .sunspot2 {
+            top: 60%;
+            left: 70%;
+            width: 12px;
+            height: 12px;
+        }
+
+        .sunspot3 {
+            top: 35%;
+            left: 65%;
+            width: 10px;
+            height: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☀ The Sun's Internal Structure</h1>
+            <p class="subtitle">A massive luminous sphere of hydrogen and helium at the center of our Solar System</p>
+        </header>
+
+        <div class="composition">
+            <h3>Composition & Formation</h3>
+            <p><strong>73% Hydrogen</strong> | <strong>25% Helium</strong> | <strong>2% Heavier Elements</strong> (O, C, N, Fe)</p>
+            <p style="margin-top: 10px;">Formed 4.6 billion years ago from gravitational collapse of a giant molecular cloud</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sun-diagram">
+                <div class="sun-container">
+                    <div class="layer corona"></div>
+                    <div class="layer chromosphere"></div>
+                    <div class="layer photosphere">
+                        <div class="sunspots"></div>
+                        <div class="sunspots sunspot2"></div>
+                        <div class="sunspots sunspot3"></div>
+                    </div>
+                    <div class="layer convective"></div>
+                    <div class="layer radiative"></div>
+                    <div class="layer core"></div>
+                    
+                    <span class="layer-label label-core">Core</span>
+                    <span class="layer-label label-radiative">Radiative</span>
+                    <span class="layer-label label-convective">Convective</span>
+                    <span class="layer-label label-photosphere">Photosphere</span>
+                    <span class="layer-label label-chromosphere">Chromosphere</span>
+                    <span class="layer-label label-corona">Corona</span>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="layer-info info-core">
+                    <h3>⚛ Core</h3>
+                    <p>The powerhouse where nuclear fusion occurs, converting hydrogen into helium.</p>
+                    <div class="stat"><strong>Temperature:</strong> 15–16 million °C</div>
+                    <div class="stat"><strong>Radius:</strong> ~20% of solar radius</div>
+                    <div class="stat"><strong>Density:</strong> ~150 g/cm³</div>
+                    <div class="stat"><strong>Process:</strong> Nuclear fusion generates all solar energy</div>
+                </div>
+
+                <div class="layer-info info-radiative">
+                    <h3>📡 Radiative Zone</h3>
+                    <p>Energy slowly moves outward through radiative diffusion as photons bounce countless times.</p>
+                    <div class="stat"><strong>Temperature:</strong> Millions to ~2 million °C</div>
+                    <div class="stat"><strong>Radius:</strong> 20–70% of solar radius</div>
+                    <div class="stat"><strong>Transit Time:</strong> ~170,000 years for photons to traverse</div>
+                </div>
+
+                <div class="layer-info info-convective">
+                    <h3>🌡 Convective Zone</h3>
+                    <p>Giant plasma cells bubble and churn, transferring heat to the surface like boiling oatmeal.</p>
+                    <div class="stat"><strong>Radius:</strong> 70–100% of solar radius</div>
+                    <div class="stat"><strong>Process:</strong> Hot plasma rises, cools, and sinks</div>
+                    <div class="stat"><strong>Effect:</strong> Final energy transfer stage to surface</div>
+                </div>
+
+                <div class="layer-info info-photosphere">
+                    <h3>☀ Photosphere</h3>
+                    <p>The visible surface that emits most sunlight. Dark sunspots appear due to magnetic activity.</p>
+                    <div class="stat"><strong>Temperature:</strong> ~6,000 °C</div>
+                    <div class="stat"><strong>Thickness:</strong> ~500 km</div>
+                    <div class="stat"><strong>Sunspots:</strong> 500–1500 °C cooler than surroundings</div>
+                </div>
+
+                <div class="layer-info info-chromosphere">
+                    <h3>🔴 Chromosphere</h3>
+                    <p>A thin reddish layer visible during eclipses, consisting of burning gases.</p>
+                    <div class="stat"><strong>Temperature:</strong> ~4,320 °C</div>
+                    <div class="stat"><strong>Thickness:</strong> ~1,600 km</div>
+                    <div class="stat"><strong>Appearance:</strong> Reddish glow during solar eclipses</div>
+                </div>
+
+                <div class="layer-info info-corona">
+                    <h3>👑 Corona</h3>
+                    <p>The expansive outer atmosphere extending millions of kilometers, source of the solar wind.</p>
+                    <div class="stat"><strong>Temperature:</strong> 1–3 million K (paradoxically hot!)</div>
+                    <div class="stat"><strong>Density:</strong> Very low despite high temperature</div>
+                    <div class="stat"><strong>Solar Wind:</strong> Streams charged particles throughout heliosphere</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
